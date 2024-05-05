@@ -1,6 +1,6 @@
 import Markdown from "markdown-to-jsx";
-import { getBlogContent, getBlogsData } from "@/app/actions";
-import { dateFormat } from "@/app/utils/date";
+import { getBlogContent } from "@/actions";
+import { dateFormat } from "@/utils/date";
 
 const PostPage = async (props: { params: { slug: string } }) => {
   const slug = props.params.slug;
@@ -10,7 +10,9 @@ const PostPage = async (props: { params: { slug: string } }) => {
       <div className="my-12 text-center">
         <h1 className="text-2xl text-slate-600 ">{post.data.title}</h1>
         <p className="text-slate-400 mt-2">{dateFormat(post.data.date)}</p>
-        <img className="object-cover h-48 w-96" src={post.data.img} />
+        <div className="flex justify-center m-5">
+          <img className="object-cover h-48 w-96" src={post.data.img} alt="" />
+        </div>
       </div>
 
       <article className="prose">

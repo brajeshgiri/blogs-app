@@ -1,38 +1,39 @@
 "use client";
-import { FC, FormEvent, useState } from "react";
+import { FC, useRef } from "react";
 import { ErrorMessage, SuccessMessage } from "./alertMessage";
-import { useFormState } from "react-dom";
+import { useFormState, useFormStatus } from "react-dom";
+import { onFormPostAction } from "@/actions";
+import { actionStates } from "@/constants";
 
-type BlogFormType = {
-  onSubmit: (event: FormData) => Promise<void>;
+const initialState = {
+  message: "",
 };
-const BlogForm: FC<BlogFormType> = ({ onSubmit }) => {
-  const [message, setMessage] = useState<string>();
-  const [error, setError] = useState<string | null>(null);
-  const onSubmitForm = async (event: FormEvent<HTMLFormElement>) => {
-    setError("");
-    setMessage("");
+const BlogForm: FC<{}> = () => {
+  const ref = useRef<HTMLFormElement>(null);
+  const { pending } = useFormStatus();
+  const [state, formAction] = useFormState(onFormPostAction, initialState);
+  const onSubmit = async (formData: FormData) => {
     try {
-      event.preventDefault();
-      const data = new FormData(event.currentTarget);
-      await onSubmit(data);
-      setMessage("saved successfully");
-    } catch (error) {
-      setError("Failed to submit the data. Please try again.");
-    }
+      await formAction(formData);
+      ref.current?.reset();
+    } catch (error) {}
   };
   return (
     <div className="w-full">
       <form
+        ref={ref}
         className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8"
-        onSubmit={onSubmitForm}
-        method="post"
+        action={onSubmit}
       >
         <h2 className="text-center text-blue-400 font-bold text-2xl uppercase mb-10">
           Add New Blog
         </h2>
-        {message && <SuccessMessage />}
-        {error && <ErrorMessage error={error} />}
+        {state.message === actionStates.Success && <SuccessMessage />}
+        {state.message === actionStates.Failed && (
+          <ErrorMessage
+            error={"Something went wrong, Please try again later"}
+          />
+        )}
 
         <div className="mb-4">
           <label
@@ -94,6 +95,7 @@ const BlogForm: FC<BlogFormType> = ({ onSubmit }) => {
 
         <button
           type="submit"
+          aria-disabled={pending}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
         >
           Save

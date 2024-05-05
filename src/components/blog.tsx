@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BlogDataType } from "./types/blogType";
-import { dateFormat } from "../utils/date";
+import { dateFormat } from "@/utils/date";
 
 const Blog = (props: BlogDataType) => {
   return (
